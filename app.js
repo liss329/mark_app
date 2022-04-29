@@ -3,6 +3,7 @@ const express = require("express");
 const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
+const session = require("express-session");
 
 const indexRouter = require("./routes/index");
 const loginRouter = require("./routes/login");
@@ -19,6 +20,13 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
+const sessionOpt = {
+  secret: "keyboard cat",
+  resave: false,
+  saveUninitialized: false,
+  cookie: { maxAge: 60 * 60 * 1000 },
+};
+app.use(session(sessionOpt));
 
 app.use("/", indexRouter);
 app.use("/login", loginRouter);

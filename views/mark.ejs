@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/stylesheets/style.css" />
+  </head>
+  <body>
+    <head>
+      <h1><%= title %></h1>
+    </head>
+    <div role="main">
+      <p>HTMLのサンプルを作ってみる</p>
+      <form action="">
+        <table>
+          <tr><th>SOURCE</th></tr>
+          <tr><td><textarea name="source"cols="60" rows="5"><%= source %></textarea></td></tr>
+          <tr><th><input type="submit" value="Update"></th></tr>
+        </table>
+      </form>
+      <div class="mark_area">
+        <%- content %>
+        <p></p>
+      </div>
+      <p><a href="/">&lt;&lt; Topへ戻る</a></p>
+    </div>
+  </body>
+</html>

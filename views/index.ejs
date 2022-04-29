@@ -2,10 +2,25 @@
 <html>
   <head>
     <title><%= title %></title>
-    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <link rel="stylesheet" href="/stylesheets/style.css" />
   </head>
   <body>
-    <h1><%= title %></h1>
-    <p>Welcome to <%= title %></p>
+    <head>
+      <h1><%= title %></h1>
+    </head>
+    <div role="main">
+      <p>Hi, <%= user.name %>!</p>
+      <p>Welcome to Markdown Search</p>
+      <input type="text" name="" id="">
+      <input type="submit" value="検索">
+      <hr>
+      <p>※最近の投稿データ</p>
+      <ul>
+        <% for(const i in content){ %>
+          <li><a href="/mark/<%= content[i].attributes.id %>"><%= content[i].attributes.title %></a></li>
+        <% } %>
+      </ul>
+      <p><a href="/add">※データを登録</a></p>
+    </div>
   </body>
 </html>

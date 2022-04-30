@@ -28,11 +28,16 @@ router.get("/", function (req, res, next) {
     .orderBy("created_at", "DESC")
     .fetchPage({ page: 1, pageSize: 10, withRelated: ["user"] })
     .then((collection) => {
+      const content = collection.toArray().filter((array) => {
+        return array.attributes.user_id === req.session.login.id;
+      });
+
       const data = {
         title: "Top",
-        content: collection.toArray(),
+        content: content,
         user: req.session.login,
       };
+
       res.render("index", data);
     })
     .catch((err) => {
@@ -46,11 +51,16 @@ router.post("/", (req, res, next) => {
     .where("content", "like", `%${req.body.search}%`)
     .fetchAll()
     .then((collection) => {
+      const content = collection.toArray().filter((array) => {
+        return array.attributes.user_id === req.session.login.id;
+      });
+
       const data = {
         title: "Top",
-        content: collection.toArray(),
+        content: content,
         user: req.session.login,
       };
+
       res.render("index", data);
     })
     .catch((err) => {

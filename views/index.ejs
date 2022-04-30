@@ -19,9 +19,7 @@
       <p>※最近の投稿データ</p>
       <ul>
         <% for(const i in content){ %>
-          <% if(content[i].attributes.user_id === user.id){ %>
             <li><a href="/mark/<%= content[i].attributes.id %>"><%= content[i].attributes.title %></a></li>
-          <% } %>
         <% } %>
       </ul>
       <p><a href="/add">※データを登録</a></p>

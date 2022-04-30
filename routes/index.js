@@ -26,15 +26,12 @@ router.get("/", function (req, res, next) {
   if (!req.session.login) return res.redirect("/login");
   new Markdata()
     .orderBy("created_at", "DESC")
+    .where("user_id", "=", req.session.login.id)
     .fetchPage({ page: 1, pageSize: 10, withRelated: ["user"] })
     .then((collection) => {
-      const content = collection.toArray().filter((array) => {
-        return array.attributes.user_id === req.session.login.id;
-      });
-
       const data = {
         title: "Top",
-        content: content,
+        content: collection.toArray(),
         user: req.session.login,
       };
 
@@ -48,16 +45,13 @@ router.get("/", function (req, res, next) {
 router.post("/", (req, res, next) => {
   new Markdata()
     .orderBy("created_at", "DESC")
+    .where("user_id", "=", req.session.login.id)
     .where("content", "like", `%${req.body.search}%`)
     .fetchAll()
     .then((collection) => {
-      const content = collection.toArray().filter((array) => {
-        return array.attributes.user_id === req.session.login.id;
-      });
-
       const data = {
         title: "Top",
-        content: content,
+        content: collection.toArray(),
         user: req.session.login,
       };
 

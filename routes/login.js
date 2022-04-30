@@ -1,6 +1,7 @@
 const express = require("express");
 // eslint-disable-next-line new-cap
 const router = express.Router();
+const { body, validationResult } = require("express-validator");
 const knex = require("knex")({
   client: "sqlite3",
   connection: {
@@ -24,37 +25,47 @@ router.get("/", function (req, res, next) {
   res.render("login", data);
 });
 
-router.post("/", function (req, res, next) {
-  console.log(req.body);
-  console.log(`name:${req.body.name}, password:${req.body.password}`);
-  Users.query({
-    where: { name: req.body.name },
-    andWhere: { password: req.body.password },
-  })
-    .fetch()
-    .then((model) => {
-      if (model === null) {
-        const data = {
-          title: "Login",
-          content: "<p class=error>名前あるいはパスワードが違います。</p>",
-          form: req.body,
-        };
-        return res.render("login", data);
-      }
-      // ログイン処理
-      req.session.login = model.attributes;
-      console.log(`sessionID: ${req.session.login.id}`);
-      const data = {
-        title: "Login",
-        content: `<p>ログインしました！<br>
-          トップページに戻ってメッセージを送信下さい。</p>`,
-        form: {},
-      };
-      res.render("login", data);
+router.post(
+  "/",
+  body("name", "NAMEは必ず入力して下さい。").notEmpty(),
+  body("password", "PASSWORDは必ず入力して下さい。").notEmpty(),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    const data = {
+      title: "Login",
+      content: "",
+      form: {},
+    };
+
+    if (!errors.isEmpty()) {
+      errors.errors.forEach((element) => {
+        data.content += `<p class="error">${element.msg}</p>`;
+      });
+      return res.render("login", data);
+    }
+
+    Users.query({
+      where: { name: req.body.name },
+      andWhere: { password: req.body.password },
     })
-    .catch((err) => {
-      console.error(err);
-    });
-});
+      .fetch()
+      .then((model) => {
+        if (model === null) {
+          data.content =
+            "<p class=error>名前あるいはパスワードが違います。</p>";
+          data.form = req.body;
+          return res.render("login", data);
+        }
+        req.session.login = model.attributes;
+        data.content = `<p>ログインしました！<br>
+            トップページに戻ってメッセージを送信下さい。</p>`;
+        res.render("login", data);
+      })
+      .catch((err) => {
+        console.error(err);
+        res.status(400).json({ errors: errors.array() });
+      });
+  }
+);
 
 module.exports = router;

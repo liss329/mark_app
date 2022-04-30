@@ -16,6 +16,7 @@ const Users = Bookshelf.Model.extend({
 
 const Markdata = Bookshelf.Model.extend({
     tableName: "markdata",
+    hasTimestamps: true, 
     user: function(){
         return this.belongsTo(Users);
     }

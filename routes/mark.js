@@ -30,7 +30,9 @@ router.get("/:id", (req, res, next) => {
       if (!model) return res.redirect("/");
       const data = {
         title: "Markdown",
+        dataTitle: model.attributes.title,
         source: model.attributes.content,
+        id: req.params.id,
         content: markdown.toHTML(model.attributes.content),
       };
       res.render("mark", data);

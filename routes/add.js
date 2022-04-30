@@ -23,6 +23,7 @@ const Markdata = Bookshelf.Model.extend({
 });
 
 router.get("/", (req, res, next) => {
+  if (!req.session.login) return res.redirect("/login");
   const data = {
     title: "Add",
   };

@@ -15,13 +15,15 @@ const Users = Bookshelf.Model.extend({
   tableName: "users",
 });
 
-/* GET users listing. */
 router.get("/", function (req, res, next) {
+  if (req.session.login) return res.redirect("/");
+
   const data = {
     title: "Login",
     content: "名前とパスワードを入力して下さい。",
     form: { name: "", password: "" },
   };
+
   res.render("login", data);
 });
 

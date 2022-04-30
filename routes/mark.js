@@ -17,13 +17,13 @@ const Markdata = Bookshelf.Model.extend({
 });
 
 router.get("/", (req, res, next) => {
-  const data = {
-    title: "Markdown",
-  };
-  res.render("mark", data);
+  if (!req.session.login) return res.redirect("/login");
+  res.redirect("/");
 });
 
 router.get("/:id", (req, res, next) => {
+  if (!req.session.login) return res.redirect("/login");
+
   Markdata.query({ where: { id: req.params.id } })
     .fetch()
     .then((model) => {

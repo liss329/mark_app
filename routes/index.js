@@ -22,7 +22,6 @@ const Markdata = Bookshelf.Model.extend({
   },
 });
 
-/* GET home page. */
 router.get("/", function (req, res, next) {
   if (!req.session.login) return res.redirect("/login");
   new Markdata()

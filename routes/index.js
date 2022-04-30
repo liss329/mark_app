@@ -41,4 +41,22 @@ router.get("/", function (req, res, next) {
     });
 });
 
+router.post("/", (req, res, next) => {
+  new Markdata()
+    .orderBy("created_at", "DESC")
+    .where("content", "like", `%${req.body.search}%`)
+    .fetchAll()
+    .then((collection) => {
+      const data = {
+        title: "Top",
+        content: collection.toArray(),
+        user: req.session.login,
+      };
+      res.render("index", data);
+    })
+    .catch((err) => {
+      console.error(err);
+    });
+});
+
 module.exports = router;

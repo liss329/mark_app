@@ -10,16 +10,17 @@
     </head>
     <div role="main">
       <p><%= dataTitle %></p>
+      <form action="/mark/<%= id %>" method="post">
         <table>
           <tr><th>SOURCE</th></tr>
-          <tr><td><textarea name="source"cols="60" rows="5"><%= source %></textarea></td></tr>
+          <tr><td><textarea name="source" cols="60" rows="5"><%= source %></textarea></td></tr>
           <tr><th><input type="submit" value="Update"></th></tr>
         </table>
       </form>
       <div class="mark_area">
         <%- content %>
-        <p></p>
       </div>
+      <p><%= updated.text %></p>
       <p><a href="/">&lt;&lt; Topへ戻る</a></p>
     </div>
   </body>

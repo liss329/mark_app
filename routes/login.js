@@ -33,41 +33,46 @@ router.post(
   body("password", "PASSWORDは必ず入力して下さい。").notEmpty(),
   (req, res, next) => {
     const errors = validationResult(req);
-    const data = {
-      title: "Login",
-      content: "",
-      form: {},
-    };
-
-    if (!errors.isEmpty()) {
-      errors.errors.forEach((element) => {
-        data.content += `<p class="error">${element.msg}</p>`;
-      });
-      return res.render("login", data);
-    }
-
-    Users.query({
-      where: { name: req.body.name },
-      andWhere: { password: req.body.password },
-    })
-      .fetch()
-      .then((model) => {
-        if (model === null) {
-          data.content =
-            "<p class=error>名前あるいはパスワードが違います。</p>";
-          data.form = req.body;
-          return res.render("login", data);
-        }
-        req.session.login = model.attributes;
-        data.content = `<p>ログインしました！<br>
-            トップページに戻ってメッセージを送信下さい。</p>`;
-        res.render("login", data);
-      })
-      .catch((err) => {
-        console.error(err);
-        res.status(400).json({ errors: errors.array() });
-      });
+    const data = !errors.isEmpty()
+      ? validationMessage(errors, req)
+      : databaseCheckMessage(req, res, next);
+    data.then((result) => res.render("login", result));
   }
 );
+
+const validationMessage = async (errors, req) => {
+  return {
+    title: "Login",
+    content: errors.errors.reduce((previousValue, currentValue) => {
+      return previousValue + `<p class="error">${currentValue.msg}</p>`;
+    }, ""),
+    form: req.body,
+  };
+};
+
+const databaseCheckMessage = (req, res, next) => {
+  return new Promise((resolve, reject) => {
+    Users.where("name", "=", req.body.name)
+      .where("password", "=", req.body.password)
+      .fetch()
+      .then((model) => {
+        if (model !== null) {
+          req.session.login = model.attributes; // ログイン状態の更新
+          resolve({
+            title: "title",
+            content: `<p>ログインしました！<br>
+                 トップページに戻ってメッセージを送信下さい。</p>`,
+            form: {},
+          });
+        }
+        resolve({
+          title: "title",
+          content: "<p class=error>名前あるいはパスワードが違います。</p>",
+          form: req.body,
+        });
+      })
+      .catch();
+  });
+};
 
 module.exports = router;

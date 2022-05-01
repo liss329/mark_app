@@ -62,4 +62,9 @@ router.post("/", (req, res, next) => {
     });
 });
 
+router.get("/logout", (req, res, next) => {
+  req.session.login = null;
+  res.redirect("/login");
+});
+
 module.exports = router;

@@ -2,18 +2,8 @@ const express = require("express");
 // eslint-disable-next-line new-cap
 const router = express.Router();
 const { body, validationResult } = require("express-validator");
-const knex = require("knex")({
-  client: "sqlite3",
-  connection: {
-    filename: "mark_data.sqlite3",
-  },
-  useNullAsDefault: true,
-});
-const Bookshelf = require("bookshelf")(knex);
 
-const Users = Bookshelf.Model.extend({
-  tableName: "users",
-});
+const isInputCorrect = require("./modules/users");
 
 router.get("/", function (req, res, next) {
   if (req.session.login) return res.redirect("/");
@@ -33,46 +23,36 @@ router.post(
   body("password", "PASSWORDは必ず入力して下さい。").notEmpty(),
   (req, res, next) => {
     const errors = validationResult(req);
-    const data = !errors.isEmpty()
-      ? validationMessage(errors, req)
-      : databaseCheckMessage(req, res, next);
-    data.then((result) => res.render("login", result));
-  }
-);
+    if (!errors.isEmpty()) {
+      const data = {
+        title: "Login",
+        content: errors.errors.reduce((previousValue, currentValue) => {
+          return previousValue + `<p class="error">${currentValue.msg}</p>`;
+        }, ""),
+        form: req.body,
+      };
+      return res.render("login", data);
+    }
 
-const validationMessage = async (errors, req) => {
-  return {
-    title: "Login",
-    content: errors.errors.reduce((previousValue, currentValue) => {
-      return previousValue + `<p class="error">${currentValue.msg}</p>`;
-    }, ""),
-    form: req.body,
-  };
-};
-
-const databaseCheckMessage = (req, res, next) => {
-  return new Promise((resolve, reject) => {
-    Users.where("name", "=", req.body.name)
-      .where("password", "=", req.body.password)
-      .fetch()
-      .then((model) => {
-        if (model !== null) {
-          req.session.login = model.attributes; // ログイン状態の更新
-          resolve({
-            title: "title",
-            content: `<p>ログインしました！<br>
-                 トップページに戻ってメッセージを送信下さい。</p>`,
-            form: {},
-          });
-        }
-        resolve({
-          title: "title",
+    isInputCorrect(req, res, next).then((result) => {
+      if (!result) {
+        const data = {
+          title: "Login",
           content: "<p class=error>名前あるいはパスワードが違います。</p>",
           form: req.body,
-        });
-      })
-      .catch();
-  });
-};
+        };
+        return res.render("login", data);
+      }
+
+      const data = {
+        title: "Login",
+        content: `<p>ログインしました！<br>
+             トップページに戻ってメッセージを送信下さい。</p>`,
+        form: {},
+      };
+      return res.render("login", data);
+    });
+  }
+);
 
 module.exports = router;
